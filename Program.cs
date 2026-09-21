@@ -1,4 +1,5 @@
 ﻿
+using ast;
 using Markdig;
 using Markdig.Syntax;
 
@@ -16,3 +17,5 @@ var pipeline = new MarkdownPipelineBuilder()
   .Build();
 
 MarkdownDocument document = Markdown.Parse(markdown, pipeline);
+
+IHolder holder = new Converter(document).Convert();
