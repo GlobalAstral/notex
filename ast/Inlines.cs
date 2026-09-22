@@ -7,7 +7,6 @@ using Markdig.Extensions.Mathematics;
 using Markdig.Extensions.SmartyPants;
 using Markdig.Extensions.TaskLists;
 using Markdig.Syntax.Inlines;
-using YamlDotNet.Serialization;
 
 namespace ast;
 

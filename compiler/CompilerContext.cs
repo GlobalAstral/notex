@@ -4,9 +4,7 @@ using System.Text;
 using PackageManager = System.Collections.Generic.HashSet<(string package, string? prop)>;
 using PropertyManager = System.Collections.Generic.Dictionary<string, string>;
 using CustomContainerManager = System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, string>>;
-using System.Data;
 using ast;
-using Markdig.Extensions.Abbreviations;
 
 namespace compiler;
 public class CompilerContext

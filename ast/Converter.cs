@@ -1,6 +1,5 @@
 using Markdig.Extensions.Abbreviations;
 using Markdig.Extensions.Alerts;
-using Markdig.Extensions.AutoIdentifiers;
 using Markdig.Extensions.CustomContainers;
 using Markdig.Extensions.DefinitionLists;
 using Markdig.Extensions.Emoji;

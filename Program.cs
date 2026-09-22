@@ -2,11 +2,10 @@
 using ast;
 using compiler;
 using Markdig;
-using Markdig.Extensions.Abbreviations;
 using Markdig.Syntax;
 
-// string filepath = (string?)args.GetValue(0) ?? throw new ArgumentException("Command line argument expected: filename");
-string filepath = "test.md";
+string filepath = (string?)args.GetValue(0) ?? throw new ArgumentException("Command line argument expected: filename");
+// string filepath = "test.md";
 
 if (Path.GetExtension(filepath) != ".md")
   throw new ArgumentException("Filename is not a .md file");
