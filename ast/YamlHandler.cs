@@ -26,8 +26,16 @@ public class DocumentConfigs
   public string PageNumbering {get; set;} = "arabic";
   public int PageNumber {get; set;} = 1;
   public string PageStyle {get; set;} = "plain";
+  public string Geometry {get; set;} = "2.5cm:2.5cm:2cm:2cm";
 
   public string GetDocumentClass() => $@"\documentclass[{FontSize}pt,{Paper},{Orientation},{Side},{Column},{(Draft ? "draft" : "final")}]{{{Class}}}";
+  public (string left, string right, string up, string down) GetGeometry()
+  {
+    string[] strings = Geometry.Split(':');
+    if (strings.Length < 4)
+      throw new ArgumentOutOfRangeException($"Geometry {Geometry} has too many entries. Expected four at least.");
+    return (strings[0], strings[1], strings[2], strings[3]);
+  }
 }
 
 public class YamlHandler
@@ -35,4 +43,5 @@ public class YamlHandler
   public OrderedSet<string> Packages {get; set;} = [];
   public OrderedSet<string> AfterPackages {get; set;} = [];
   public DocumentConfigs Document {get; set;} = new();
+  public OrderedSet<string> Languages {get; set;} = ["english"];
 }

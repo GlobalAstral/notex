@@ -1,4 +1,3 @@
-
 using System.Globalization;
 using System.Text;
 using ast;
@@ -19,6 +18,10 @@ public static class Compiler
     DocumentConfigs cfg = context.DocumentConfigs;
 
     output.AppendLine(context.DocumentConfigs.GetDocumentClass());
+
+    (string left, string right, string up, string down) = cfg.GetGeometry();
+    context.AddPackage("geometry", $"top={up},bottom={down},left={left},right={right}");
+    context.AddPackage("babel", string.Join(',', context.Languages));
 
     context.ResolvePackages(output);
     context.ResolveAfterPackages(output);

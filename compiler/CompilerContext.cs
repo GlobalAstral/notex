@@ -13,6 +13,7 @@ public class CompilerContext
   private PackageManager Packages {get;} = [];
   private OrderedSet<string> AfterPackages {get;} = [];
   private List<IHolder> Footers {get;} = [];
+  public OrderedSet<string> Languages {get;} = [];
   public DocumentConfigs DocumentConfigs = new();
   
   private Dictionary<string, IEnumerable<IHolder>> DeclaredFootnotes {get;} = [];
@@ -21,6 +22,8 @@ public class CompilerContext
   
   public void ApplyYaml(YamlHandler handler)
   {
+    DocumentConfigs = handler.Document;
+
     foreach (string package in handler.Packages)
     {
       if (package.Length == 0)
@@ -29,13 +32,18 @@ public class CompilerContext
       Packages.Add((splits[0], splits.Length > 1 ? splits[1] : null));
     }
 
-    DocumentConfigs = handler.Document;
-
     foreach (string after in handler.AfterPackages)
     {
       if (after.Length == 0)
         continue;
       AfterPackages.Add(after);
+    }
+
+    foreach (string lang in handler.Languages)
+    {
+      if (lang.Length == 0)
+        continue;
+      Languages.Add(lang);
     }
   }
   public void AddPackage(string package) => Packages.Add((package, null));
