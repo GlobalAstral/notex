@@ -16,6 +16,7 @@ static void Process(string filepath, bool debug)
   var pipeline = new MarkdownPipelineBuilder()
     .UseAdvancedExtensions()
     .UseYamlFrontMatter()
+    .UseRawLatex()
     .UseSmartyPants()
     .Build();
 

@@ -333,6 +333,13 @@ public record ThematicBreakBlockHolder : IHolder
   public void Setup(CompilerContext context) { }
 }
 
+public record RawLatexHolder(string Raw) : IHolder
+{
+  public static explicit operator RawLatexHolder(RawLatexBlock rawLatex) => new(IHolder.CollapseLines(rawLatex.Lines.Lines));
+  public void Generate(StringBuilder builder, CompilerContext context) => builder.AppendLine(Raw);
+  public void Setup(CompilerContext context) { }
+}
+
 public record EmptyHolder : IHolder
 {
   public void Generate(StringBuilder builder, CompilerContext context) { }

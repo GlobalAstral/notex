@@ -86,6 +86,7 @@ public class Converter(MarkdownDocument document)
     FootnoteLinkReferenceDefinition footnote => (FootnoteHolder) footnote,
 
     ThematicBreakBlock breakBlock => (ThematicBreakBlockHolder) breakBlock,
+    RawLatexBlock rawLatex => (RawLatexHolder) rawLatex,
     _ => Empty(block),
   };
 
