@@ -329,6 +329,13 @@ public record TableCellHolder(IEnumerable<IHolder> Holders) : ContainerHolder(Ho
   public static explicit operator TableCellHolder(TableCell cell) => new(Converter.Container2Holders(cell));
 }
 
+public record ThematicBreakBlockHolder : IHolder
+{
+  public static explicit operator ThematicBreakBlockHolder(ThematicBreakBlock block) => new();
+  public void Generate(StringBuilder builder, CompilerContext context) => builder.AppendLine(@"\newpage");
+  public void Setup(CompilerContext context) { }
+}
+
 public record EmptyHolder : IHolder
 {
   public void Generate(StringBuilder builder, CompilerContext context) { }

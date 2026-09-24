@@ -84,6 +84,8 @@ public class Converter(MarkdownDocument document)
     TableCell cell => (TableCellHolder) cell,
     LinkReferenceDefinitionGroup group => new ContainerHolder(Container2Holders(group)),
     FootnoteLinkReferenceDefinition footnote => (FootnoteHolder) footnote,
+
+    ThematicBreakBlock breakBlock => (ThematicBreakBlockHolder) breakBlock,
     _ => Empty(block),
   };
 
