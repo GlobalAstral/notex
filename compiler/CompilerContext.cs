@@ -10,21 +10,17 @@ namespace compiler;
 public class CompilerContext
 {
   private PackageManager Packages {get;} = [];
-  private List<string> AfterPackages {get;} = [];
+  private OrderedSet<string> AfterPackages {get;} = [];
   private List<IHolder> Footers {get;} = [];
   
   private Dictionary<string, IEnumerable<IHolder>> DeclaredFootnotes {get;} = [];
   private CustomContainerManager CustomContainers {get;} = [];
-  private HashSet<string> DeclaredAbbreviations {get;} = [];
+  private OrderedSet<string> DeclaredAbbreviations {get;} = [];
   
   public void ApplyYaml(YamlHandler handler) => throw new NotImplementedException();
   public void AddPackage(string package) => Packages.Add((package, null));
   public void AddPackage(string package, string properties) => Packages.Add((package, properties));
-  public void AddAfterPackages(string directive)
-  {
-    if (!AfterPackages.Contains(directive))
-      AfterPackages.Add(directive);
-  }
+  public void AddAfterPackages(string directive) => AfterPackages.Add(directive);
   public void AddCustomContainer(string name, PropertyManager properties) => CustomContainers[name] = properties;
   public PropertyManager? GetCustomContainer(string name) => CustomContainers[name];
   public PropertyManager TryGetCustomContainer(string name, PropertyManager def)

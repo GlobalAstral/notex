@@ -84,13 +84,10 @@ public record DocumentHolder(IEnumerable<IHolder> Holders, Dictionary<string, Ab
   public static explicit operator DocumentHolder(MarkdownDocument block) => new(Converter.Container2Holders(block), block.GetAbbreviations() ?? []);
   public override void Generate(StringBuilder builder, CompilerContext context)
   {
-    IHolder.InsideEnv(builder, context, "document", (builder, context) =>
-    {
-      foreach (IHolder child in Abbreviations.Values.Select(abbr => (AbbrHolder) abbr))
-        child.Run(builder, context);
-      base.Generate(builder, context);
-      context.ResolveFooters(builder);
-    });
+    foreach (IHolder child in Abbreviations.Values.Select(abbr => (AbbrHolder) abbr))
+      child.Run(builder, context);
+    base.Generate(builder, context);
+    context.ResolveFooters(builder);
   }
 }
 
