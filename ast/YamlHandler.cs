@@ -33,7 +33,7 @@ public class DocumentConfigs
   {
     string[] strings = Geometry.Split(':');
     if (strings.Length < 4)
-      throw new ArgumentOutOfRangeException($"Geometry {Geometry} has too many entries. Expected four at least.");
+      throw new ArgumentOutOfRangeException($"Geometry {Geometry} has not enough entries. Expected four at least.");
     return (strings[0], strings[1], strings[2], strings[3]);
   }
 }
