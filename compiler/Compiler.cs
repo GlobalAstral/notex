@@ -6,11 +6,8 @@ namespace compiler;
 
 public static class Compiler
 {
-  public static string Compile(IHolder document)
+  public static string Compile(IHolder document, StringBuilder output, CompilerContext context)
   {
-    StringBuilder output = new();
-    CompilerContext context = new();
-
     StringBuilder builder = new();
 
     document.Run(builder, context);

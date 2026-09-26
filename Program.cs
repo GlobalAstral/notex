@@ -1,10 +1,13 @@
 ﻿
+using System.Text;
 using ast;
 using compiler;
+using core;
 using Markdig;
 using Markdig.Syntax;
+using MoonSharp.Interpreter;
 
-static void Process(string filepath, bool debug)
+static void Process(string filepath, bool debug, StringBuilder output, CompilerContext context)
 {
   if (Path.GetExtension(filepath) != ".md")
     throw new ArgumentException("Filename is not a .md file");
@@ -13,14 +16,9 @@ static void Process(string filepath, bool debug)
 
   string markdown = File.ReadAllText(filepath);
 
-  var pipeline = new MarkdownPipelineBuilder()
-    .UseAdvancedExtensions()
-    .UseYamlFrontMatter()
-    .UseRawLatex()
-    .UseSmartyPants()
-    .Build();
+  
 
-  MarkdownDocument document = Markdown.Parse(markdown, pipeline);
+  MarkdownDocument document = Markdown.Parse(markdown, MarkdownHelpers.Pipeline);
 
   if (debug)
   {
@@ -30,7 +28,7 @@ static void Process(string filepath, bool debug)
 
   IHolder holder = new Converter(document).Convert();
 
-  string tex = Compiler.Compile(holder);
+  string tex = Compiler.Compile(holder, output, context);
 
   File.WriteAllText(texfile, tex);
 }
@@ -44,5 +42,14 @@ string[] files = [ .. args ];
 if (files.Length < 1)
   throw new ArgumentException("Command line argument expected: filename");
 
+StringBuilder output = new();
+CompilerContext context = new();
+
+Script lua = new();
+
+lua.CreateLuaEnvironment(context, output); //TODO 
+
+
+
 foreach (string filepath in arguments)
-  Process(filepath, debug);
+  Process(filepath, debug, output, context);
