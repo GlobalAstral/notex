@@ -45,6 +45,9 @@ public class CompilerContext
         continue;
       Languages.Add(lang);
     }
+    
+    foreach (var pair in handler.CustomContainers)
+      CustomContainers[pair.Key] = pair.Value;
   }
   public void AddPackage(string package) => Packages.Add((package, null));
   public void AddPackage(string package, string properties) => Packages.Add((package, properties));

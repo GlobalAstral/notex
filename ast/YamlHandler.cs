@@ -44,4 +44,5 @@ public class YamlHandler
   public OrderedSet<string> AfterPackages {get; set;} = [];
   public DocumentConfigs Document {get; set;} = new();
   public OrderedSet<string> Languages {get; set;} = ["english"];
+  public Dictionary<string, Dictionary<string, string>> CustomContainers = [];
 }
