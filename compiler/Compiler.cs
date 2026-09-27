@@ -11,6 +11,7 @@ public static class Compiler
     StringBuilder builder = new();
 
     document.Run(builder, context);
+    context.RunAfterRun();
 
     DocumentConfigs cfg = context.DocumentConfigs;
 
@@ -21,7 +22,9 @@ public static class Compiler
     context.AddPackage("babel", string.Join(',', context.Languages));
 
     context.ResolvePackages(output);
+    context.RunWithPackages();
     context.ResolveAfterPackages(output);
+    context.RunAfterPackages();
     
     output.AppendLine($@"\setlength{{\parindent}}{{{cfg.ParagraphIndent}pt}}");
     output.AppendLine($@"\setlength{{\parskip}}{{{cfg.ParagraphSkip}pt}}");

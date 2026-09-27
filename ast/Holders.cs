@@ -1,5 +1,6 @@
 using System.Text;
 using compiler;
+using core;
 using Markdig.Extensions.Abbreviations;
 using Markdig.Extensions.Alerts;
 using Markdig.Extensions.AutoIdentifiers;
@@ -12,7 +13,6 @@ using Markdig.Extensions.Mathematics;
 using Markdig.Extensions.Tables;
 using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
-using YamlDotNet.Serialization;
 
 namespace ast;
 
@@ -46,10 +46,7 @@ public record YamlHolder(YamlHandler Handler) : IHolder
   public static explicit operator YamlHolder(YamlFrontMatterBlock block)
   {
     string yaml = IHolder.CollapseLines(block.Lines.Lines);
-    var deserializer = new DeserializerBuilder()
-      .IgnoreUnmatchedProperties()
-      .Build();
-    YamlHandler handler = deserializer.Deserialize<YamlHandler>(yaml);
+    YamlHandler handler = MarkdownHelpers.YamlDeserializer.Deserialize<YamlHandler>(yaml);
     return new(handler);
   }
   public void Generate(StringBuilder builder, CompilerContext context) { }

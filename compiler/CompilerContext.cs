@@ -7,6 +7,8 @@ using CustomContainerManager = System.Collections.Generic.Dictionary<string, Sys
 using ast;
 using core;
 
+using EventHandler = (System.Action action, int priority);
+
 namespace compiler;
 public class CompilerContext
 {
@@ -19,6 +21,10 @@ public class CompilerContext
   private Dictionary<string, IEnumerable<IHolder>> DeclaredFootnotes {get;} = [];
   private CustomContainerManager CustomContainers {get;} = [];
   private OrderedSet<string> DeclaredAbbreviations {get;} = [];
+  public List<EventHandler> SetupHandlers {get;} = [];
+  public List<EventHandler> WithPackagesHandlers {get;} = [];
+  public List<EventHandler> AfterPackagesHandlers {get;} = [];
+  public List<EventHandler> AfterRunHandlers {get;} = [];
   
   public void ApplyYaml(YamlHandler handler)
   {
@@ -114,4 +120,20 @@ public class CompilerContext
     foreach (IHolder child in Footers)
       child.Run(builder, this);
   }
+
+  static void SortHandlers(List<(Action action, int priority)> handlers) => handlers.Sort((a, b) => a.priority.CompareTo(b.priority));
+
+  public void SortHandlers()
+  {
+    SortHandlers(SetupHandlers);
+    SortHandlers(WithPackagesHandlers);
+    SortHandlers(AfterPackagesHandlers);
+    SortHandlers(AfterRunHandlers);
+  }
+
+  static void RunHandlers(List<(Action action, int priority)> handlers) => handlers.ForEach(handler => handler.action());
+  public void RunSetup() => RunHandlers(SetupHandlers);
+  public void RunWithPackages() => RunHandlers(WithPackagesHandlers);
+  public void RunAfterPackages() => RunHandlers(AfterPackagesHandlers);
+  public void RunAfterRun() => RunHandlers(AfterRunHandlers);
 }

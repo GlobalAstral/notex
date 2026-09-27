@@ -16,8 +16,6 @@ static void Process(string filepath, bool debug, StringBuilder output, CompilerC
 
   string markdown = File.ReadAllText(filepath);
 
-  
-
   MarkdownDocument document = Markdown.Parse(markdown, MarkdownHelpers.Pipeline);
 
   if (debug)
@@ -33,6 +31,19 @@ static void Process(string filepath, bool debug, StringBuilder output, CompilerC
   File.WriteAllText(texfile, tex);
 }
 
+static void RunPlugins(Script lua)
+{
+  if (!Directory.Exists("plugins"))
+    return;
+  foreach (string path in Directory.GetFiles("plugins"))
+  {
+    lua.Globals["__FILE__"] = path;
+    string content = File.ReadAllText(path);
+    lua.DoString(content);
+  }
+}
+
+
 List<string> arguments = [.. args];
 
 bool debug = arguments.Remove("--debug");
@@ -42,14 +53,18 @@ string[] files = [ .. args ];
 if (files.Length < 1)
   throw new ArgumentException("Command line argument expected: filename");
 
+Script lua = new(CoreModules.Preset_HardSandbox);
+
 StringBuilder output = new();
 CompilerContext context = new();
 
-Script lua = new();
+lua.CreateLuaEnvironment(context, output);
 
-lua.CreateLuaEnvironment(context, output); //TODO 
+RunPlugins(lua);
 
+context.SortHandlers();
 
+context.RunSetup();
 
 foreach (string filepath in arguments)
   Process(filepath, debug, output, context);

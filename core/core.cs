@@ -1,10 +1,12 @@
 using System.Collections;
+using System.Diagnostics;
 using System.Text;
 using ast;
 using compiler;
 using Markdig;
 using Markdig.Syntax;
 using MoonSharp.Interpreter;
+using YamlDotNet.Serialization;
 
 namespace core;
 
@@ -41,10 +43,29 @@ public static class MarkdownHelpers
     .UseRawLatex()
     .UseSmartyPants()
     .Build();
+
+  public static readonly IDeserializer YamlDeserializer = new DeserializerBuilder()
+    .IgnoreUnmatchedProperties()
+    .Build();
+
+  public static readonly ISerializer YamlSerializer = new SerializerBuilder()
+    .Build();
 }
 
 public static class LuaHelpers
 {
+  public static Dictionary<K, V> ToDictionary<K, V>(this Table table) where K : notnull
+  {
+    Dictionary<K, V> ret = [];
+    foreach (var key in table.Keys)
+    {
+      var k = (K)key.ToObject();
+      var v = (V)table.Get(key).ToObject();
+      ret[k] = v;
+    }
+    return ret;
+  }
+
   public static void IfPresent<T>(this Dictionary<object, object?> dict, object key, Action<T> action)
   {
     if (dict.TryGetValue(key, out var value))
@@ -79,8 +100,9 @@ public static class LuaHelpers
       context.AppendFooter(holders);
     };
     script.Globals["addLanguage"] = (string lang) => context.Languages.Add(lang);
-    script.Globals["setDocument"] = (Dictionary<object, object?> table) =>
+    script.Globals["setDocument"] = (Table tbl) =>
     {
+      Dictionary<object, object?> table = tbl.ToDictionary<object, object?>();
       table.IfPresent("class", (string clazz) => context.DocumentConfigs.Class = clazz);
       table.IfPresent("fontSize", (int fs) => context.DocumentConfigs.FontSize = fs);
       table.IfPresent("paper", (string paper) => context.DocumentConfigs.Paper = paper);
@@ -108,6 +130,30 @@ public static class LuaHelpers
       IEnumerable<IHolder> holders = Converter.Container2Holders(document);
       context.DeclareFootnote(label, holders);
     };
-    script.Globals["addCustomContainer"] = (string name, Dictionary<string, string> properties) => context.AddCustomContainer(name, properties);
+    script.Globals["addCustomContainer"] = (string name, Table props) => context.AddCustomContainer(name, props.ToDictionary<string, string>());
+    script.Globals["registerSetup"] = (Action action, int priority) => context.SetupHandlers.Add((action, priority));
+    script.Globals["registerWithPackages"] = (Action action, int priority) => context.WithPackagesHandlers.Add((action, priority));
+    script.Globals["registerAfterPackages"] = (Action action, int priority) => context.AfterPackagesHandlers.Add((action, priority));
+    script.Globals["registerAfterRun"] = (Action action, int priority) => context.AfterRunHandlers.Add((action, priority));
+    script.Globals["print"] = (string s) => Debug.Write(s);
+    script.Globals["println"] = (string s) => Debug.WriteLine(s);
+    script.Globals["getOrCreateConfig"] = (string name, Table @default) =>
+    {
+      string path = $"plugins/{script.Globals["__FILE__"]}.{name}.yaml";
+      
+      if (File.Exists(path))
+      {
+        string yaml = File.ReadAllText(path);
+        
+        Dictionary<object, object?> defs = MarkdownHelpers.YamlDeserializer.Deserialize<Dictionary<object, object?>>(yaml);
+        Table ret = new(script);
+        foreach (var pair in defs)
+          ret[pair.Key] = pair.Value;
+        return ret;
+      }
+      Dictionary<object, object?> defaults = @default.ToDictionary<object, object?>();
+      File.WriteAllText(path, MarkdownHelpers.YamlSerializer.Serialize(defaults));
+      return @default;
+    };
   }
 }
