@@ -62,7 +62,6 @@ CompilerContext context = new();
 
 lua.CreateLuaEnvironment(context, output);
 
-
 RunPlugins(lua);
 
 context.SortHandlers();
