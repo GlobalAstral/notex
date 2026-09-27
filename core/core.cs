@@ -139,12 +139,11 @@ public static class LuaHelpers
     script.Globals["println"] = (string s) => Debug.WriteLine(s);
     script.Globals["getOrCreateConfig"] = (string name, Table @default) =>
     {
-      string path = $"plugins/{script.Globals["__FILE__"]}.{name}.yaml";
+      string path = $"plugins/{Path.GetFileNameWithoutExtension((string) script.Globals["__FILE__"])}.{name}.yaml";
       
       if (File.Exists(path))
       {
         string yaml = File.ReadAllText(path);
-        
         Dictionary<object, object?> defs = MarkdownHelpers.YamlDeserializer.Deserialize<Dictionary<object, object?>>(yaml);
         Table ret = new(script);
         foreach (var pair in defs)
