@@ -131,10 +131,10 @@ public static class LuaHelpers
       context.DeclareFootnote(label, holders);
     };
     script.Globals["addCustomContainer"] = (string name, Table props) => context.AddCustomContainer(name, props.ToDictionary<string, string>());
-    script.Globals["registerSetup"] = (Action action, int priority) => context.SetupHandlers.Add((action, priority));
-    script.Globals["registerWithPackages"] = (Action action, int priority) => context.WithPackagesHandlers.Add((action, priority));
-    script.Globals["registerAfterPackages"] = (Action action, int priority) => context.AfterPackagesHandlers.Add((action, priority));
-    script.Globals["registerAfterRun"] = (Action action, int priority) => context.AfterRunHandlers.Add((action, priority));
+    script.Globals["registerSetup"] = (Closure action, int? priority) => context.SetupHandlers.Add((() => action.Call(), priority ?? context.SetupHandlers.Count));
+    script.Globals["registerWithPackages"] = (Closure action, int? priority) => context.WithPackagesHandlers.Add((() => action.Call(), priority ?? context.WithPackagesHandlers.Count));
+    script.Globals["registerAfterPackages"] = (Closure action, int? priority) => context.AfterPackagesHandlers.Add((() => action.Call(), priority ?? context.AfterPackagesHandlers.Count));
+    script.Globals["registerAfterRun"] = (Closure action, int? priority) => context.AfterRunHandlers.Add((() => action.Call(), priority ?? context.AfterRunHandlers.Count));
     script.Globals["print"] = (string s) => Console.Write(s);
     script.Globals["println"] = (string s) => Console.WriteLine(s);
     script.Globals["getOrCreateConfig"] = (string name, Table @default) =>
@@ -143,7 +143,7 @@ public static class LuaHelpers
       
       if (File.Exists(path))
       {
-        string yaml = File.ReadAllText(path);
+        string yaml = File.ReadAllText(path).Replace(Environment.NewLine, "\n");
         Dictionary<object, object?> defs = MarkdownHelpers.YamlDeserializer.Deserialize<Dictionary<object, object?>>(yaml);
         Table ret = new(script);
         foreach (var pair in defs)

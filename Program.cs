@@ -14,7 +14,7 @@ static void Process(string filepath, bool debug, StringBuilder output, CompilerC
 
   string texfile = Path.ChangeExtension(filepath, ".tex");
 
-  string markdown = File.ReadAllText(filepath);
+  string markdown = File.ReadAllText(filepath).Replace(Environment.NewLine, "\n");
 
   MarkdownDocument document = Markdown.Parse(markdown, MarkdownHelpers.Pipeline);
 
@@ -37,8 +37,10 @@ static void RunPlugins(Script lua)
     return;
   foreach (string path in Directory.GetFiles("plugins"))
   {
+    if (Path.GetExtension(path) != ".lua")
+      continue;
     lua.Globals["__FILE__"] = path;
-    string content = File.ReadAllText(path);
+    string content = File.ReadAllText(path).Replace(Environment.NewLine, "\n");
     lua.DoString(content);
   }
 }
@@ -59,6 +61,7 @@ StringBuilder output = new();
 CompilerContext context = new();
 
 lua.CreateLuaEnvironment(context, output);
+
 
 RunPlugins(lua);
 

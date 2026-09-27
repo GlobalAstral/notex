@@ -1,3 +1,4 @@
 obj/
 bin/
-ast/temp.txt
+.vscode/
+Properties/
