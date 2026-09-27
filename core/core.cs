@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 using ast;
 using compiler;
@@ -84,7 +84,7 @@ public static class LuaHelpers
   public static void CreateLuaEnvironment(this Script script, CompilerContext context, StringBuilder output)
   {
     script.Globals["outputPush"] = (string str) => output.Append(str);
-    script.Globals["outputPushln"] = (string str) => output.AppendLine(str);
+    script.Globals["outputPushln"] = (string? str) => output.AppendLine(str ?? "");
     script.Globals["addPackage"] = (string package, string? properties) =>
     {
       if (properties == null)
@@ -135,8 +135,8 @@ public static class LuaHelpers
     script.Globals["registerWithPackages"] = (Closure action, int? priority) => context.WithPackagesHandlers.Add((() => action.Call(), priority ?? context.WithPackagesHandlers.Count));
     script.Globals["registerAfterPackages"] = (Closure action, int? priority) => context.AfterPackagesHandlers.Add((() => action.Call(), priority ?? context.AfterPackagesHandlers.Count));
     script.Globals["registerAfterRun"] = (Closure action, int? priority) => context.AfterRunHandlers.Add((() => action.Call(), priority ?? context.AfterRunHandlers.Count));
-    script.Globals["print"] = (string s) => Console.Write(s);
-    script.Globals["println"] = (string s) => Console.WriteLine(s);
+    script.Globals["print"] = (DynValue s) => Console.Write(s.ToPrintString());
+    script.Globals["println"] = (DynValue s) => Console.WriteLine(s.ToPrintString());
     script.Globals["getOrCreateConfig"] = (string name, Table @default) =>
     {
       string path = $"plugins/{Path.GetFileNameWithoutExtension((string) script.Globals["__FILE__"])}.{name}.yaml";
@@ -154,5 +154,12 @@ public static class LuaHelpers
       File.WriteAllText(path, MarkdownHelpers.YamlSerializer.Serialize(defaults));
       return @default;
     };
+  }
+
+  public static string GetLuaGlobals()
+  {
+    using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("notex.data.pluginGlobals.lua");
+    using var streamReader = new StreamReader(stream!, Encoding.UTF8);
+    return streamReader.ReadToEnd();
   }
 }

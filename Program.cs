@@ -45,8 +45,13 @@ static void RunPlugins(Script lua)
   }
 }
 
-
 List<string> arguments = [.. args];
+
+if (arguments.Remove("--pluginGlobals"))
+{
+  File.WriteAllText("pluginGlobals.lua", LuaHelpers.GetLuaGlobals());
+  return;
+}
 
 bool debug = arguments.Remove("--debug");
 
