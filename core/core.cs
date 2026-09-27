@@ -135,8 +135,8 @@ public static class LuaHelpers
     script.Globals["registerWithPackages"] = (Action action, int priority) => context.WithPackagesHandlers.Add((action, priority));
     script.Globals["registerAfterPackages"] = (Action action, int priority) => context.AfterPackagesHandlers.Add((action, priority));
     script.Globals["registerAfterRun"] = (Action action, int priority) => context.AfterRunHandlers.Add((action, priority));
-    script.Globals["print"] = (string s) => Debug.Write(s);
-    script.Globals["println"] = (string s) => Debug.WriteLine(s);
+    script.Globals["print"] = (string s) => Console.Write(s);
+    script.Globals["println"] = (string s) => Console.WriteLine(s);
     script.Globals["getOrCreateConfig"] = (string name, Table @default) =>
     {
       string path = $"plugins/{Path.GetFileNameWithoutExtension((string) script.Globals["__FILE__"])}.{name}.yaml";
