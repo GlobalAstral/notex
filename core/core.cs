@@ -6,6 +6,7 @@ using compiler;
 using Markdig;
 using Markdig.Syntax;
 using MoonSharp.Interpreter;
+using pluginExtension;
 using YamlDotNet.Serialization;
 
 namespace core;
@@ -42,6 +43,7 @@ public static class MarkdownHelpers
     .UseYamlFrontMatter()
     .UseRawLatex()
     .UseSmartyPants()
+    .UsePluginExtensions()
     .Build();
 
   public static readonly IDeserializer YamlDeserializer = new DeserializerBuilder()
@@ -153,6 +155,14 @@ public static class LuaHelpers
       Dictionary<object, object?> defaults = @default.ToDictionary<object, object?>();
       File.WriteAllText(path, MarkdownHelpers.YamlSerializer.Serialize(defaults));
       return @default;
+    };
+    script.Globals["registerExtension"] = (Table handle) =>
+    {
+      Handle h = Handle.From(handle);
+      if (h.GetType() != Handle.Type.Parser)
+        throw new InvalidCastException($"Handle {h} is not linked to a BlockParser");
+      IPluginNode node = h.Get();
+      //TODO
     };
   }
 
