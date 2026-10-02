@@ -156,13 +156,18 @@ public static class LuaHelpers
       File.WriteAllText(path, MarkdownHelpers.YamlSerializer.Serialize(defaults));
       return @default;
     };
-    script.Globals["registerExtension"] = (Table handle) =>
+    script.Globals["registerExtension"] = (Table parser) =>
     {
-      Handle h = Handle.From(handle);
-      if (h.GetType() != Handle.Type.Parser)
-        throw new InvalidCastException($"Handle {h} is not linked to a BlockParser");
-      IPluginNode node = h.Get();
+      Handle handle = Handle.From(parser);
+      if (handle.GetType() != Handle.Type.Parser)
+        throw new InvalidCastException($"Handle {handle} is not linked to a BlockParser");
+      IPluginNode node = handle.Get();
       //TODO
+    };
+    script.Globals["dispose"] = (Table hdl) =>
+    {
+      Handle handle = Handle.From(hdl);
+      return PluginRegistry.Dispose(handle);
     };
   }
 

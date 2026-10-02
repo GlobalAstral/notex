@@ -41,6 +41,12 @@ public static class PluginRegistry {
     return pipeline;
   }
 
+  public static bool Dispose(Handle handle)
+  {
+    Registry registry = GetRegistry(handle);
+    return registry.Remove(handle);
+  }
+
   //TODO Parser,
   //TODO RawTextBlock,
   //TODO LeafBlock,
