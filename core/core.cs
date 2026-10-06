@@ -133,10 +133,10 @@ public static class LuaHelpers
       context.DeclareFootnote(label, holders);
     };
     script.Globals["addCustomContainer"] = (string name, Table props) => context.AddCustomContainer(name, props.ToDictionary<string, string>());
-    script.Globals["registerSetup"] = (Closure action, int? priority) => context.SetupHandlers.Add((() => action.Call(), priority ?? context.SetupHandlers.Count));
-    script.Globals["registerWithPackages"] = (Closure action, int? priority) => context.WithPackagesHandlers.Add((() => action.Call(), priority ?? context.WithPackagesHandlers.Count));
-    script.Globals["registerAfterPackages"] = (Closure action, int? priority) => context.AfterPackagesHandlers.Add((() => action.Call(), priority ?? context.AfterPackagesHandlers.Count));
-    script.Globals["registerAfterRun"] = (Closure action, int? priority) => context.AfterRunHandlers.Add((() => action.Call(), priority ?? context.AfterRunHandlers.Count));
+    script.Globals["registerSetup"] = (DynValue action, int? priority) => context.SetupHandlers.Add((() => script.Call(action), priority ?? context.SetupHandlers.Count));
+    script.Globals["registerWithPackages"] = (DynValue action, int? priority) => context.WithPackagesHandlers.Add((() => script.Call(action), priority ?? context.WithPackagesHandlers.Count));
+    script.Globals["registerAfterPackages"] = (DynValue action, int? priority) => context.AfterPackagesHandlers.Add((() => script.Call(action), priority ?? context.AfterPackagesHandlers.Count));
+    script.Globals["registerAfterRun"] = (DynValue action, int? priority) => context.AfterRunHandlers.Add((() => script.Call(action), priority ?? context.AfterRunHandlers.Count));
     script.Globals["print"] = (DynValue s) => Console.Write(s.ToPrintString());
     script.Globals["println"] = (DynValue s) => Console.WriteLine(s.ToPrintString());
     script.Globals["getOrCreateConfig"] = (string name, Table @default) =>
@@ -158,7 +158,7 @@ public static class LuaHelpers
     };
     script.Globals["registerExtension"] = (Table parser) =>
     {
-      Handle handle = Handle.From(parser);
+      Handle handle = Handle.From(script, parser);
       if (handle.GetType() != Handle.Type.Parser)
         throw new InvalidCastException($"Handle {handle} is not linked to a BlockParser");
       IPluginNode node = handle.Get();
@@ -166,7 +166,7 @@ public static class LuaHelpers
     };
     script.Globals["dispose"] = (Table hdl) =>
     {
-      Handle handle = Handle.From(hdl);
+      Handle handle = Handle.From(script, hdl);
       return PluginRegistry.Dispose(handle);
     };
   }

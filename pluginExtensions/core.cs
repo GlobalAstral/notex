@@ -5,5 +5,5 @@ namespace pluginExtension;
 public interface IPluginNode
 {
   DynValue ToLua(Script lua);
-  void FromLua(DynValue value);
+  void FromLua(Script lua, DynValue value);
 }

@@ -54,27 +54,24 @@ public struct Handle : IPluginNode
     int temp = CompoundID;
     Table table = new(lua);
     table["handle"] = () => DynValue.NewNumber(temp);
-    table["snapshot"] = (Table self) => From(self).Get().ToLua(lua);
-    table["load"] = (Table self, DynValue value) => From(self).Get().FromLua(value);
+    table["snapshot"] = (Table self) => From(lua, self).Get().ToLua(lua);
+    table["load"] = (Table self, DynValue value) => From(lua, self).Get().FromLua(lua, value);
     return DynValue.NewTable(table);
   }
 
-  public void FromLua(DynValue value)
+  public void FromLua(Script lua, DynValue value)
   {
     if (value.Type != DataType.Table)
       throw new InvalidCastException($"LuaValue {value} cannot be converted to a Table");
     Table table = value.Table;
     DynValue i = table.Get("handle");
-    if (i.Type != DataType.Function) 
-      throw new InvalidCastException($"LuaValue {i} cannot be converted to a Function");
-    Closure c = i.Function;
-    DynValue r = c.Call();
+    DynValue r = lua.Call(i);
     if (r.Type != DataType.Number)
       throw new InvalidCastException($"LuaValue {r} cannot be converted to a Number");
     int integer = (int) r.Number;
     CompoundID = integer;
   }
-  public Handle(Table dyn) => FromLua(DynValue.NewTable(dyn));
-  public static Handle From(Table table) => new(table);
+  public Handle(Script lua, Table dyn) => FromLua(lua, DynValue.NewTable(dyn));
+  public static Handle From(Script lua, Table table) => new(lua, table);
   public readonly IPluginNode Get() => PluginRegistry.Get(this);
 }
