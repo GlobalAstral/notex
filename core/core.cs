@@ -162,7 +162,7 @@ public static class LuaHelpers
       if (handle.GetType() != Handle.Type.Parser)
         throw new InvalidCastException($"Handle {handle} is not linked to a BlockParser");
       IPluginNode node = handle.Get();
-      //TODO
+      //TODO Cast into parser and actually register extension, then return handle
     };
     script.Globals["dispose"] = (Table hdl) =>
     {
