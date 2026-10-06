@@ -4,6 +4,7 @@ using System.Text;
 using ast;
 using compiler;
 using Markdig;
+using Markdig.Parsers;
 using Markdig.Syntax;
 using MoonSharp.Interpreter;
 using pluginExtension;
@@ -83,6 +84,7 @@ public static class LuaHelpers
 
     }
   }
+  public static T Immediate<T>(Func<T> factory) => factory();
   public static void CreateLuaEnvironment(this Script script, CompilerContext context, StringBuilder output)
   {
     script.Globals["outputPush"] = (string str) => output.Append(str);
@@ -156,13 +158,28 @@ public static class LuaHelpers
       File.WriteAllText(path, MarkdownHelpers.YamlSerializer.Serialize(defaults));
       return @default;
     };
+    script.Globals["blockstates"] = Immediate(() =>
+    {
+      Table table = new(script);
+      foreach (BlockState value in Enum.GetValues<BlockState>())
+        table[value.ToString()] = Convert.ToDouble(value);
+      return DynValue.NewTable(table);
+    });
+    script.Globals["registerParser"] = (DynValue tryOpen) =>
+    {
+      PluginParser parser = new(script, tryOpen);
+      Handle handle = PluginRegistry.Register(Handle.Type.Parser, parser);
+      return handle.ToLua(script);
+    };
     script.Globals["registerExtension"] = (Table parser) =>
     {
       Handle handle = Handle.From(script, parser);
       if (handle.GetType() != Handle.Type.Parser)
         throw new InvalidCastException($"Handle {handle} is not linked to a BlockParser");
       IPluginNode node = handle.Get();
-      //TODO Cast into parser and actually register extension, then return handle
+      PluginParser p = (PluginParser) node;
+      PluginExtension extension = new(p);
+      PluginRegistry.RegisterExtension(extension);
     };
     script.Globals["dispose"] = (Table hdl) =>
     {
