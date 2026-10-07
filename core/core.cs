@@ -7,7 +7,6 @@ using Markdig;
 using Markdig.Parsers;
 using Markdig.Syntax;
 using MoonSharp.Interpreter;
-using pluginExtension;
 using YamlDotNet.Serialization;
 
 namespace core;
@@ -44,7 +43,6 @@ public static class MarkdownHelpers
     .UseYamlFrontMatter()
     .UseRawLatex()
     .UseSmartyPants()
-    .UsePluginExtensions()
     .Build();
 
   public static readonly IDeserializer YamlDeserializer = new DeserializerBuilder()
@@ -165,27 +163,6 @@ public static class LuaHelpers
         table[value.ToString()] = Convert.ToDouble(value);
       return DynValue.NewTable(table);
     });
-    script.Globals["registerParser"] = (DynValue tryOpen) =>
-    {
-      PluginParser parser = new(script, tryOpen);
-      Handle handle = PluginRegistry.Register(Handle.Type.Parser, parser);
-      return handle.ToLua(script);
-    };
-    script.Globals["registerExtension"] = (Table parser) =>
-    {
-      Handle handle = Handle.From(script, parser);
-      if (handle.GetType() != Handle.Type.Parser)
-        throw new InvalidCastException($"Handle {handle} is not linked to a BlockParser");
-      IPluginNode node = handle.Get();
-      PluginParser p = (PluginParser) node;
-      PluginExtension extension = new(p);
-      PluginRegistry.RegisterExtension(extension);
-    };
-    script.Globals["dispose"] = (Table hdl) =>
-    {
-      Handle handle = Handle.From(script, hdl);
-      return PluginRegistry.Dispose(handle);
-    };
   }
 
   public static string GetLuaGlobals()

@@ -13,6 +13,7 @@ using Markdig.Extensions.Mathematics;
 using Markdig.Extensions.Tables;
 using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
+using MoonSharp.Interpreter;
 
 namespace ast;
 
@@ -276,7 +277,7 @@ public record TableHolder(IEnumerable<IHolder> Holders, string Specs) : Containe
     }));
     return builder.ToString();
   }
-  public static explicit operator TableHolder(Table table) {
+  public static explicit operator TableHolder(Markdig.Extensions.Tables.Table table) {
     string specs = SpecsToLatex(table.ColumnDefinitions);
     return new(Converter.Container2Holders(table), specs);
   }
