@@ -4,7 +4,6 @@ using System.Text;
 using ast;
 using compiler;
 using Markdig;
-using Markdig.Parsers;
 using Markdig.Syntax;
 using MoonSharp.Interpreter;
 using YamlDotNet.Serialization;
@@ -156,13 +155,6 @@ public static class LuaHelpers
       File.WriteAllText(path, MarkdownHelpers.YamlSerializer.Serialize(defaults));
       return @default;
     };
-    script.Globals["blockstates"] = Immediate(() =>
-    {
-      Table table = new(script);
-      foreach (BlockState value in Enum.GetValues<BlockState>())
-        table[value.ToString()] = Convert.ToDouble(value);
-      return DynValue.NewTable(table);
-    });
   }
 
   public static string GetLuaGlobals()
