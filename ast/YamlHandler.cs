@@ -38,7 +38,7 @@ public class DocumentConfigs
   }
 }
 
-public class YamlHandler
+public class YamlHandler()
 {
   public OrderedSet<string> Packages {get; set;} = [];
   public OrderedSet<string> AfterPackages {get; set;} = [];
